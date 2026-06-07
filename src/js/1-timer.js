@@ -1,14 +1,21 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
 const labels = document.querySelectorAll('.label');
+const picker = document.querySelector('#datetime-picker');
+const btn = document.querySelector('.btn');
+
+const daysEl = document.querySelector('[data-days]');
+const hoursEl = document.querySelector('[data-hours]');
+const minutesEl = document.querySelector('[data-minutes]');
+const secondsEl = document.querySelector('[data-seconds]');
 
 labels.forEach(label => {
   label.textContent = label.textContent.toUpperCase();
 });
-
-const picker = document.querySelector('#datetime-picker');
-const btn = document.querySelector('.btn');
 
 let userSelectedDate = null;
 btn.disabled = true;
@@ -22,7 +29,11 @@ const options = {
     const selectedDate = selectedDates[0];
 
     if (selectedDate <= new Date()) {
-      window.alert('Please choose a date in the future');
+      iziToast.error({
+        title: 'Error',
+        message: 'Please choose a date in the future',
+      });
+      // window.alert('Please choose a date in the future');
       btn.disabled = true;
       return;
     }
@@ -55,10 +66,37 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
 btn.addEventListener('click', () => {
-  if ('click') {
-    setInterval(1000);
-    btn.disabled = true;
-    console.log('clicked');
-  }
+  btn.disabled = true;
+  picker.disabled = true;
+
+  const timerId = setInterval(() => {
+    const currentTime = new Date();
+    const ms = userSelectedDate - currentTime;
+
+    if (ms <= 0) {
+      clearInterval(timerId);
+
+      daysEl.textContent = '00';
+      hoursEl.textContent = '00';
+      minutesEl.textContent = '00';
+      secondsEl.textContent = '00';
+
+      picker.disabled = false;
+      btn.disabled = true;
+
+      return;
+    }
+
+    const time = convertMs(ms);
+
+    daysEl.textContent = addLeadingZero(time.days);
+    hoursEl.textContent = addLeadingZero(time.hours);
+    minutesEl.textContent = addLeadingZero(time.minutes);
+    secondsEl.textContent = addLeadingZero(time.seconds);
+  }, 1000);
 });
