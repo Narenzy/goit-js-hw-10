@@ -33,7 +33,6 @@ const options = {
         title: 'Error',
         message: 'Please choose a date in the future',
       });
-      // window.alert('Please choose a date in the future');
       btn.disabled = true;
       return;
     }
